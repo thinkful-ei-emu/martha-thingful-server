@@ -58,26 +58,20 @@ describe('Protected Endpoints', function() {
         return endpoint.method(endpoint.path)
           .expect(401, { error: 'Missing basic token'});
       });
-  
-      it('should respond with 401 "Unauthoized request" when no credentials provided', ()=> {
-        const userNoCreds = { user_name: '', password:''};
+      
+      it('should respond with 401 "Unauthoized request" when invalid jwt secret', ()=> {
+        const validUser = testUsers[0];
+        const invalidSecret = 'bad-secret';
         return endpoint.method(endpoint.path)
-          .set('Authorization', helpers.makeAuthHeader(userNoCreds))
+          .set('Authorization', helpers.makeAuthHeader(validUser, invalidSecret))
           .expect(401, { error: 'Unauthorized request'});
       });
   
-      it('should respond 401 "Unauthorized request" when invalid user', ()=> {
-        const userInvalidCreds = { user_name: 'user-not', password: 'existy'};
+      it('should respond 401 "Unauthorized request" when invalid sub in payload', ()=> {
+        const invalidUser = { user_name: 'user-not', id: 1};
         return endpoint.method(endpoint.path)
-          .set('Authorization', helpers.makeAuthHeader(userInvalidCreds))
+          .set('Authorization', helpers.makeAuthHeader(invalidUser))
           .expect(401, { error: 'Unauthorized request'});
-      });
-  
-      it('should respond with 401 and "Unauthorized request" when invalid password', ()=> {
-        const userInvalidPassword = { user_name: testUsers[0].user_name, password: 'wrong'};
-        return endpoint.method(endpoint.path)
-          .set('Authorization', helpers.makeAuthHeader(userInvalidPassword))
-          .expect(401, {error: 'Unauthorized request'});
       });
     });
   });
